@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
-from app.models.user import User
+from models.user import User
 
 class Post(BaseModel):
     type_of: str = "article"
@@ -23,3 +23,6 @@ class Post(BaseModel):
     canonical_url: str = "https://dev.to/javicerodriguez/ciendiasconcourseit-dia-11-100-1bee"
     reading_time_minutes: int = 4
     user: User
+
+class PostDB(Post):
+    _id: str

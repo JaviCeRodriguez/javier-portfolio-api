@@ -17,22 +17,27 @@ def helper(doc) -> dict:
     return { key: value for key, value in doc.items() }
 
 async def populate_posts():
-    posts = await retrieve_posts()
+    """
+    Populate DB if docs quantity is less than posts in DEV.to
+    """
+    posts = []
+    async for post in post_collection.find():
+        posts.append(helper(post))
+    posts_id = [p["id"] for p in posts]
     url = "https://dev.to/api/articles/me"
     req = requests.get(url, headers=headers)
 
-    if len(posts) == 0: # Populate if posts in db is empty
+    if len(posts) <= len(req.json()):
         for post in req.json():
-            new_post = await add_post(post)
-            if new_post: print(f"Agregado {new_post['title']} (id: {new_post['id']})")
-    elif len(posts) < len(req.json()): # Populate if length req objects is less than posts in db
-        pass # TODO
+            if post["id"] not in posts_id:
+                new_post = await add_post(post)
+                if new_post: print(f"Agregado {new_post['title']} (id: {new_post['id']})")
     else:
         print(f"No hace falta popular posts_collection")
-
-async def retrieve_posts():
+    
+async def retrieve_posts(limit: int = 6, page: int = 0):
     posts = []
-    async for post in post_collection.find():
+    async for post in post_collection.find().skip(limit*(page)).limit(limit):
         posts.append(helper(post))
     return posts
 

@@ -1,4 +1,6 @@
 __pycache__
 .env
+.env.production
 .vscode
 venv
+.deta
